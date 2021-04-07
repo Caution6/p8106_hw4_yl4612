@@ -1,0 +1,119 @@
+---
+title: "Homework 4" 
+author: "Yanhao Li"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 2
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: '2'
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[R]{\thepage}
+- \fancypagestyle{plain}{\pagestyle{fancy}}
+--- 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+
+\newpage
+
+```{r}
+library(tidyverse)
+library(caret) 
+library(ISLR)
+library(AppliedPredictiveModeling)
+library(glmnet)
+library(MASS)
+library(e1071)
+library(mlbench)
+library(pROC)
+```
+
+# Question 1
+
+Load, clean, and tidy data
+
+```{r}
+
+```
+
+### Question a
+
+```{r}
+
+```
+
+### Question b
+
+```{r}
+
+```
+
+
+
+### Question c
+
+```{r}
+
+```
+
+
+
+### Question d
+
+```{r}
+
+```
+
+
+
+### Question e
+
+```{r}
+
+```
+
+
+
+### Question f
+
+```{r}
+
+```
+
+
+
+# Question 2
+
+Load, clean, and tidy data
+
+```{r}
+
+```
+
+### Question a
+
+```{r}
+
+```
+
+### Question b
+
+```{r}
+
+```
+
+
+
+### Question c
+
+```{r}
+
+```
