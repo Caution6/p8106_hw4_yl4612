@@ -186,25 +186,98 @@ According to the table, random forest has lower mean RMSE. Consequently, I will 
 Load, clean, and tidy data
 
 ```{r}
+data("OJ")
 
+oj <- OJ %>% 
+  janitor::clean_names()
+
+set.seed(1)
+
+rowTrain = createDataPartition(y = oj$purchase,
+                               p = 799/1070,
+                               list = FALSE)
 ```
 
 ### Question a
 
 ```{r}
+rpart.fit <- train(purchase~., 
+                   oj, 
+                   subset = rowTrain,
+                   method = "rpart",
+                   tuneGrid = data.frame(cp = exp(seq(-6,-3, len = 20))),
+                   trControl = ctrl)
 
+ggplot(rpart.fit, highlight = TRUE)
+
+rpart.plot(rpart.fit$finalModel)
+
+rpart.pred <- predict(rpart.fit, newdata = oj[-rowTrain,])
+
+mean(rpart.pred != oj$purchase[-rowTrain])
 ```
+
+The test classification error rate is 17.4%.
 
 ### Question b
 
 ```{r}
+rf.grid2 <- expand.grid(mtry = 1:10,
+                       splitrule = "gini",
+                       min.node.size = 1:6)
 
+set.seed(1)
+
+rf.fit2 <- train(purchase~., 
+                oj, 
+                subset = rowTrain,
+                method = "ranger",
+                tuneGrid = rf.grid2,
+                trControl = ctrl,
+                importance = "permutation")
+
+ggplot(rf.fit2, highlight = TRUE)
+
+barplot(sort(ranger::importance(rf.fit2$finalModel), decreasing = FALSE),
+        las = 2, horiz = TRUE, cex.names = 0.7,
+        col = colorRampPalette(colors = c("cyan","blue"))(19))
+
+rf.pred <- predict(rf.fit2, newdata = oj[-rowTrain,])
+
+mean(rf.pred != oj$purchase[-rowTrain])
 ```
 
+According to the plot, variable importance rank from highest to lowest.
 
+The test classification error rate is 20%.
 
 ### Question c
 
 ```{r}
+gbm.grid2 <- expand.grid(n.trees = c(2000,3000),
+                        interaction.depth = 2:10,
+                        shrinkage = c(0.001,0.003,0.005),
+                        n.minobsinnode = 1)
 
+set.seed(1)
+
+gbm.fit2 <- train(purchase~., 
+                 oj, 
+                 subset = rowTrain, 
+                 tuneGrid = gbm.grid2,
+                 trControl = ctrl,
+                 method = "gbm",
+                 verbose = FALSE)
+
+ggplot(gbm.fit2, highlight = TRUE)
+
+summary(gbm.fit2$finalModel, las = 2, cBars = 19, cex.names = 0.6)
+
+gbm.pred <- predict(gbm.fit2, newdata = oj[-rowTrain,])
+
+mean(gbm.pred != oj$purchase[-rowTrain])
 ```
+
+According to the plot, variable importance rank from highest to lowest.
+
+The test classification error rate is 19.3%. 
