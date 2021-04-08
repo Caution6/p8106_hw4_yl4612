@@ -112,10 +112,16 @@ According to the table, variable importance from highest to lowest is lcavol, lw
 ### Question d
 
 ```{r}
+set.seed(1)
 
+rf <- randomForest(lpsa ~ . , 
+                   prostate,
+                   mtry = 2)
+
+rf$importance
 ```
 
-
+According to the table, variable importance from highest to lowest is lcavol, lweight, lcp, svi, pgg45, age, lbph, and gleason. 
 
 ### Question e
 
