@@ -98,46 +98,88 @@ In terminal node where lcvol is less than -0.48, the mean lpsa is 0.6. This node
 ### Question c
 
 ```{r}
+ctrl <- trainControl(method = "cv")
+
+bag.grid <- expand.grid(mtry = 8,
+                       splitrule = "variance",
+                       min.node.size = 1:30)
+
 set.seed(1)
 
-bagging <- randomForest(lpsa ~ . , 
-                        prostate,
-                        mtry = 8)
+bag.fit <- train(lpsa~., 
+                 Prostate, 
+                 method = "ranger",
+                 tuneGrid = bag.grid,
+                 trControl = ctrl,
+                 importance = "permutation")
 
-bagging$importance
+ggplot(bag.fit, highlight = TRUE)
+
+barplot(sort(ranger::importance(bag.fit$finalModel), decreasing = FALSE), 
+        las = 2, horiz = TRUE, cex.names = 0.7,
+        col = colorRampPalette(colors = c("cyan","blue"))(19))
 ```
 
-According to the table, variable importance from highest to lowest is lcavol, lweight, svi, lcp, age, pgg45, lbph, and gleason. 
+According to the plot, variable importance from highest to lowest is lcavol, lweight, svi, pgg45, lcp, gleason, lbph, and age. 
 
 ### Question d
 
 ```{r}
+rf.grid <- expand.grid(mtry = 1:8,
+                       splitrule = "variance",
+                       min.node.size = 1:30)
+
 set.seed(1)
 
-rf <- randomForest(lpsa ~ . , 
-                   prostate,
-                   mtry = 2)
+rf.fit <- train(lpsa ~ . , 
+                prostate, 
+                method = "ranger",
+                tuneGrid = rf.grid,
+                trControl = ctrl,
+                importance = "permutation")
 
-rf$importance
+ggplot(rf.fit, highlight = TRUE)
+
+barplot(sort(ranger::importance(rf.fit$finalModel), decreasing = FALSE), 
+        las = 2, horiz = TRUE, cex.names = 0.7,
+        col = colorRampPalette(colors = c("cyan","blue"))(19))
 ```
 
-According to the table, variable importance from highest to lowest is lcavol, lweight, lcp, svi, pgg45, age, lbph, and gleason. 
+According to the plot, variable importance from highest to lowest is lcavol, lweight, svi, lcp, pgg45, lbph, gleason, and age. 
 
 ### Question e
 
 ```{r}
+gbm.grid <- expand.grid(n.trees = c(2000,3000),
+                        interaction.depth = 2:10,
+                        shrinkage = c(0.001,0.003,0.005),
+                        n.minobsinnode = 1)
 
+set.seed(1)
+
+gbm.fit <- train(lpsa ~ . , 
+                 prostate, 
+                 method = "gbm",
+                 tuneGrid = gbm.grid,
+                 trControl = ctrl,
+                 verbose = FALSE)
+
+ggplot(gbm.fit, highlight = TRUE)
+
+summary(gbm.fit$finalModel, las = 2, cBars = 19, cex.names = 0.6)
 ```
 
-
+According to the plot, variable importance from highest to lowest is lcavol, lweight, svi, pgg45, lcp, age, lbph, and gleason. 
 
 ### Question f
 
 ```{r}
+resamp <- resamples(list(bag = bag.fit, rf = rf.fit, bst = gbm.fit))
 
+summary(resamp)
 ```
 
-
+According to the table, random forest has lower mean RMSE. Consequently, I will choose random forest.
 
 # Question 2
 
