@@ -26,14 +26,14 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 ```{r}
 library(tidyverse)
-library(caret) 
 library(ISLR)
-library(AppliedPredictiveModeling)
-library(glmnet)
-library(MASS)
-library(e1071)
-library(mlbench)
-library(pROC)
+library(lasso2)
+library(ISLR)
+library(rpart)
+library(rpart.plot)
+library(ranger)
+library(caret)
+library(gbm)
 ```
 
 # Question 1
@@ -41,14 +41,42 @@ library(pROC)
 Load, clean, and tidy data
 
 ```{r}
+data("Prostate")
 
+prostate = Prostate %>% 
+  janitor::clean_names()
 ```
 
 ### Question a
 
 ```{r}
+set.seed(1)
 
+tree1 = rpart(formula = lpsa ~ ., 
+               data = prostate)
+
+rpart.plot(tree1)
+
+printcp(tree1)
+
+cpTable <- tree1$cptable
+
+plotcp(tree1)
+
+# minimum cross-validation error
+minErr <- which.min(cpTable[,4])
+
+tree2 <- prune(tree1, cp = cpTable[minErr,1])
+
+rpart.plot(tree2)
+
+# 1SE rule
+tree3 <- prune(tree1, cp = cpTable[cpTable[,4] < cpTable[minErr,4] + cpTable[minErr,5],1][1])
+
+rpart.plot(tree3)
 ```
+
+Tree size corresponds to the lowest cross-validation error is 8. It is different from the tree size obtained using the 1 SE rule, which is 3. 
 
 ### Question b
 
