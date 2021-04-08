@@ -57,8 +57,6 @@ tree1 = rpart(formula = lpsa ~ .,
 
 rpart.plot(tree1)
 
-printcp(tree1)
-
 cpTable <- tree1$cptable
 
 plotcp(tree1)
@@ -81,10 +79,20 @@ Tree size corresponds to the lowest cross-validation error is 8. It is different
 ### Question b
 
 ```{r}
+plotcp(tree1)
 
+set.seed(1)
+
+tree4 <- rpart(formula = lpsa ~ .,
+               data = prostate,
+               control = rpart.control(cp = 0.1))
+
+rpart.plot(tree4)
 ```
 
+A good choice of cp for pruning is often the leftmost value for which the mean lies below the horizontal line. According to the plot, I choose cp equals to 0.1 and size of tree equals to 3. 
 
+In terminal node where lcvol is less than -0.48, the mean lpsa is 0.6. This node contains 9% of the sample.
 
 ### Question c
 
